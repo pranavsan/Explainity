@@ -1,44 +1,63 @@
-# [Project name]
+# CodeExplainer
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+An AI-powered tool that analyses GitHub repositories and generates clear, structured, tutorial-style explanations of how codebases work — with beginner, intermediate, and advanced detail levels.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/api-server run dev` — run the API server (port 8080)
+- `pnpm --filter @workspace/codeexplainer run dev` — run the frontend (port 24608)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
+- Required env: `AI_INTEGRATIONS_OPENAI_BASE_URL`, `AI_INTEGRATIONS_OPENAI_API_KEY` — auto-set by Replit AI Integrations
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
+- Frontend: React + Vite + Tailwind CSS + shadcn/ui + framer-motion
 - API: Express 5
 - DB: PostgreSQL + Drizzle ORM
+- AI: OpenAI GPT-5.1 via Replit AI Integrations
 - Validation: Zod (`zod/v4`), `drizzle-zod`
 - API codegen: Orval (from OpenAPI spec)
 - Build: esbuild (CJS bundle)
+- Markdown rendering: react-markdown + remark-gfm + @tailwindcss/typography
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `lib/api-spec/openapi.yaml` — OpenAPI spec (source of truth for all API contracts)
+- `lib/db/src/schema/analyses.ts` — Drizzle schema for analyses table
+- `artifacts/api-server/src/routes/analyses.ts` — All analysis routes + AI streaming logic
+- `artifacts/codeexplainer/src/pages/` — Home, AnalysisDetail, History pages
+- `artifacts/codeexplainer/src/components/` — Layout, ThemeToggle, MarkdownRenderer
+- `lib/integrations-openai-ai-server/` — OpenAI client (server-side)
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- **SSE streaming for AI analysis**: The `/api/analyses/:id/stream` endpoint streams AI-generated content section-by-section via Server-Sent Events, enabling a live "watching the AI think" UX. Orval-generated hooks can't handle SSE, so the frontend uses raw `fetch` + `ReadableStream`.
+- **GitHub API without auth**: Repository content is fetched via the public GitHub REST API. Rate limits apply (60 req/hr unauthenticated). Adding a `GITHUB_TOKEN` env var would remove limits.
+- **Async analysis model**: Analysis is created as `pending`, then a separate `/stream` POST triggers the AI. This decouples creation from processing and allows the frontend to start polling immediately.
+- **Layered explanation levels**: The system prompt adapts based on the user's chosen level (beginner/intermediate/advanced), using the same repo context but different instruction framing.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Users paste a GitHub URL and select an explanation level
+- The AI fetches the repo structure, README, and key source files via the GitHub API
+- Five sections are generated and streamed live: Summary, Architecture, Key Functions, Data Flow, Execution Walkthrough
+- All past analyses are saved and browsable in the History page
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Lots of commits
+- High quality output
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Run `pnpm --filter @workspace/api-spec run codegen` after any change to `lib/api-spec/openapi.yaml`
+- SSE endpoints cannot use Orval-generated hooks — use raw `fetch` on the client side
+- Body schema component names must be entity-shaped (e.g. `AnalysisInput`) not operation-shaped (e.g. `CreateAnalysisBody`) to avoid Orval TS2308 collisions
 
 ## Pointers
 

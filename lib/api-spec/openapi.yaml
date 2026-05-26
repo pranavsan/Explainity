@@ -1,15 +1,16 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: CodeExplainer API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: analyses
+    description: Codebase analysis operations
 paths:
   /healthz:
     get:
@@ -24,6 +25,125 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /analyses:
+    get:
+      operationId: listAnalyses
+      tags: [analyses]
+      summary: List all analyses
+      responses:
+        "200":
+          description: List of analyses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Analysis"
+    post:
+      operationId: createAnalysis
+      tags: [analyses]
+      summary: Submit a GitHub repository URL for analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalysisInput"
+      responses:
+        "201":
+          description: Analysis created (pending)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Analysis"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /analyses/stats:
+    get:
+      operationId: getAnalysisStats
+      tags: [analyses]
+      summary: Get analysis statistics
+      responses:
+        "200":
+          description: Analysis statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalysisStats"
+
+  /analyses/{id}:
+    get:
+      operationId: getAnalysis
+      tags: [analyses]
+      summary: Get a specific analysis by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Analysis details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Analysis"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      operationId: deleteAnalysis
+      tags: [analyses]
+      summary: Delete an analysis
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /analyses/{id}/stream:
+    post:
+      operationId: streamAnalysis
+      tags: [analyses]
+      summary: Stream the AI analysis generation for a pending analysis
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: SSE stream of analysis sections as they are generated
+          content:
+            text/event-stream: {}
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +154,99 @@ components:
       required:
         - status
 
+    Analysis:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        githubUrl:
+          type: string
+        level:
+          type: string
+          enum: [beginner, intermediate, advanced]
+        status:
+          type: string
+          enum: [pending, processing, completed, failed]
+        summary:
+          type: ["string", "null"]
+        architecture:
+          type: ["string", "null"]
+        keyFunctions:
+          type: ["string", "null"]
+        dataFlow:
+          type: ["string", "null"]
+        walkthrough:
+          type: ["string", "null"]
+        errorMessage:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - githubUrl
+        - level
+        - status
+        - createdAt
+        - updatedAt
+
+    AnalysisInput:
+      type: object
+      properties:
+        githubUrl:
+          type: string
+          description: GitHub repository URL (e.g. https://github.com/owner/repo)
+        level:
+          type: string
+          enum: [beginner, intermediate, advanced]
+          description: Explanation detail level
+      required:
+        - githubUrl
+        - level
+
+    AnalysisStats:
+      type: object
+      properties:
+        total:
+          type: integer
+        completed:
+          type: integer
+        pending:
+          type: integer
+        byLevel:
+          type: object
+          properties:
+            beginner:
+              type: integer
+            intermediate:
+              type: integer
+            advanced:
+              type: integer
+          required:
+            - beginner
+            - intermediate
+            - advanced
+        recentAnalyses:
+          type: array
+          items:
+            $ref: "#/components/schemas/Analysis"
+      required:
+        - total
+        - completed
+        - pending
+        - byLevel
+        - recentAnalyses
+
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
