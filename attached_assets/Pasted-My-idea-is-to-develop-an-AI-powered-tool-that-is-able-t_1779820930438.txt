@@ -1,0 +1,27 @@
+My idea is to develop an AI-powered tool that is able to analyse a software repository and generate a clear, structured explanation of
+how the system works, similar to a tutorial written by an experienced developer.
+One major challenge in computer science and software development is understanding unfamiliar codebases. There is no shortage of
+open source code available online but the documentation often lacks clarity or, if it’s an older piece of software, this documentation is
+seldom up to date. This creates a significant barrier for students trying to learn from real-world projects, as well as for developers
+attempting to learn from or contribute to existing codebases. In practice, a large amount of time is spent manually tracing through files,
+functions, and dependencies just to build a basic understanding of how a system operates, time that could be better placed on
+development.
+Existing tools such as code editors and repository platforms (namely GitHub) provide access to code but they do not yet bridge the gap
+between reading code and understanding it at a conceptual level well enough. This is particularly difficult for larger projects, where the
+logic is distributed across many files and components. As a result, there is a clear gap in the market for a tool that can automatically
+interpret and explain software systems in a human-readable way.
+The tool is also designed to bridge the gap between learning basic programming concepts and application to practical projects by
+making it easier for beginners to understand how to apply technical coding skills to development.
+This product would allow a user to input a GitHub repository link or upload a project folder. The system would then analyse the
+structure of the codebase and generate layered explanations, including but not limited to:
+● A summary of the project’s purpose
+● A breakdown of the architecture (modules, files, and their roles)
+● Descriptions of key functions and classes
+● An explanation of how data flows through the system
+● A step-by-step walkthrough of how the program executes
+A key feature of the product would be multi-level explanation and adaptive explanation granularity, which would allow users to
+choose between beginner, intermediate, and advanced detail. This makes the tool useful both for students learning programming and
+for more experienced developers quickly understanding new systems, without having to pick between the two main customer markets.
+The primary users of the product would be computer science students, self-taught programmers as well as developers who are working
+with unfamiliar codebases. A secondary market could also include educators and teachers who could use the tool to demonstrate how
+real-world systems are structured, which would be a useful supplement to their teaching.
