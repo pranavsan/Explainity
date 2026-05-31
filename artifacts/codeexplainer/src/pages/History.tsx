@@ -58,7 +58,7 @@ export function History() {
       <div className="flex flex-col md:flex-row justify-between md:items-end gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Analysis History</h1>
-          <p className="text-muted-foreground mt-1">Review and manage your past repository analyses.</p>
+          <p className="text-muted-foreground mt-1">Review and manage previous repository analyses.</p>
         </div>
       </div>
 

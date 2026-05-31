@@ -1,4 +1,4 @@
-# CodeExplainer
+# Explainity
 
 An AI-powered tool that analyses GitHub repositories and generates clear, structured, tutorial-style explanations of how codebases work — with beginner, intermediate, and advanced detail levels.
 

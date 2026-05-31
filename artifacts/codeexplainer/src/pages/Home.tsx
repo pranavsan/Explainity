@@ -68,7 +68,7 @@ export function Home() {
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
           <Zap className="w-8 h-8 text-primary" /> 
-          Analyze a Codebase
+          Analyse a Codebase
         </h1>
         <p className="text-muted-foreground text-lg">
           Paste a GitHub repository URL to get a comprehensive, tutorial-style explanation of its architecture and functionality.
@@ -122,7 +122,7 @@ export function Home() {
                 )}
               />
               <Button type="submit" disabled={createAnalysis.isPending} className="w-full" data-testid="button-submit-analysis">
-                {createAnalysis.isPending ? "Starting Engine..." : "Analyze Repository"}
+                {createAnalysis.isPending ? "Starting Engine..." : "Analyse Repository"}
               </Button>
             </form>
           </Form>

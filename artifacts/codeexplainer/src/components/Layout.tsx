@@ -14,7 +14,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <SidebarHeader className="border-b border-border py-4">
             <div className="flex items-center px-4 gap-2 font-bold text-lg text-primary">
               <TerminalSquare className="w-6 h-6" />
-              <span>CodeExplainer</span>
+              <span>Explainity</span>
             </div>
           </SidebarHeader>
           <SidebarContent>
@@ -47,7 +47,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <SidebarTrigger />
             <div className="ml-4 font-bold text-primary flex items-center gap-2">
               <TerminalSquare className="w-5 h-5" />
-              <span>CodeExplainer</span>
+              <span>Explainity</span>
             </div>
           </header>
           <div className="flex-1 overflow-auto p-4 md:p-8">

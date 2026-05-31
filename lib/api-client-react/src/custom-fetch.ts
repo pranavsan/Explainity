@@ -32,7 +32,7 @@ export function setBaseUrl(url: string | null): void {
 /**
  * Register a getter that supplies a bearer auth token.  Before every fetch
  * the getter is invoked; when it returns a non-null string, an
- * `Authorization: Bearer <token>` header is attached to the request.
+ * `authorisation: Bearer <token>` header is attached to the request.
  *
  * Useful for Expo bundles making token-gated API calls.
  * Pass `null` to clear the getter.
@@ -238,14 +238,14 @@ async function parseJsonBody(
   requestInfo: { method: string; url: string },
 ): Promise<unknown> {
   const raw = await response.text();
-  const normalized = stripBom(raw);
+  const normalised = stripBom(raw);
 
-  if (normalized.trim() === "") {
+  if (normalised.trim() === "") {
     return null;
   }
 
   try {
-    return JSON.parse(normalized);
+    return JSON.parse(normalised);
   } catch (cause) {
     throw new ResponseParseError(response, raw, cause, requestInfo);
   }
@@ -264,16 +264,16 @@ async function parseErrorBody(response: Response, method: string): Promise<unkno
   }
 
   const raw = await response.text();
-  const normalized = stripBom(raw);
-  const trimmed = normalized.trim();
+  const normalised = stripBom(raw);
+  const trimmed = normalised.trim();
 
   if (trimmed === "") {
     return null;
   }
 
-  if (isJsonMediaType(mediaType) || looksLikeJson(normalized)) {
+  if (isJsonMediaType(mediaType) || looksLikeJson(normalised)) {
     try {
-      return JSON.parse(normalized);
+      return JSON.parse(normalised);
     } catch {
       return raw;
     }
@@ -350,11 +350,11 @@ export async function customFetch<T = unknown>(
   }
 
   // Attach bearer token when an auth getter is configured and no
-  // Authorization header has been explicitly provided.
-  if (_authTokenGetter && !headers.has("authorization")) {
+  // authorisation header has been explicitly provided.
+  if (_authTokenGetter && !headers.has("authorisation")) {
     const token = await _authTokenGetter();
     if (token) {
-      headers.set("authorization", `Bearer ${token}`);
+      headers.set("authorisation", `Bearer ${token}`);
     }
   }
 

@@ -21,7 +21,7 @@ export function decodePCM16ToFloat32(base64Audio: string): Float32Array {
 }
 
 /**
- * Create and initialize AudioContext with worklet
+ * Create and initialise AudioContext with worklet
  */
 export async function createAudioPlaybackContext(
   workletPath = "/audio-playback-worklet.js",
