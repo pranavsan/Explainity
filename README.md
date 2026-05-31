@@ -1,49 +1,120 @@
 # Explainity
 
-An AI-powered tool that analyses GitHub repositories and generates clear, structured, tutorial-style explanations of how codebases work — with beginner, intermediate, and advanced detail levels.
+> AI-powered GitHub repository explainer — paste a repo URL, get a clear, structured, tutorial-style breakdown of how the codebase works.
 
-## Run & Operate
+Explainity fetches a repository's structure, README, and key source files via the GitHub API, then uses an LLM to generate five sections streamed live: **Summary**, **Architecture**, **Key Functions**, **Data Flow**, and **Execution Walkthrough**. Users can choose a detail level — beginner, intermediate, or advanced — and browse all past analyses in a History page.
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 8080)
-- `pnpm --filter @workspace/codeexplainer run dev` — run the frontend (port 24608)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
-- Required env: `AI_INTEGRATIONS_OPENAI_BASE_URL`, `AI_INTEGRATIONS_OPENAI_API_KEY` — auto-set by Replit AI Integrations
+---
 
-## Stack
+## Tech Stack
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- Frontend: React + Vite + Tailwind CSS + shadcn/ui + framer-motion
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- AI: OpenAI GPT-5.1 via Replit AI Integrations
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
-- Markdown rendering: react-markdown + remark-gfm + @tailwindcss/typography
+| Layer | Technology |
+|---|---|
+| Package manager | pnpm workspaces |
+| Runtime | Node.js 24 |
+| Language | TypeScript 5.9 |
+| Frontend | React + Vite + Tailwind CSS + shadcn/ui + framer-motion |
+| API server | Express 5 |
+| Database | PostgreSQL + Drizzle ORM |
+| AI | OpenAI GPT-5.1 |
+| Validation | Zod (`zod/v4`), `drizzle-zod` |
+| API codegen | Orval (from OpenAPI spec) |
+| Build | esbuild (CJS bundle) |
+| Markdown rendering | react-markdown + remark-gfm + @tailwindcss/typography |
 
-## Where things live
+---
 
-- `lib/api-spec/openapi.yaml` — OpenAPI spec (source of truth for all API contracts)
-- `lib/db/src/schema/analyses.ts` — Drizzle schema for analyses table
-- `artifacts/api-server/src/routes/analyses.ts` — All analysis routes + AI streaming logic
-- `artifacts/codeexplainer/src/pages/` — Home, AnalysisDetail, History pages
-- `artifacts/codeexplainer/src/components/` — Layout, ThemeToggle, MarkdownRenderer
-- `lib/integrations-openai-ai-server/` — OpenAI client (server-side)
+## Prerequisites
 
-## Architecture decisions
+- **Node.js 24+**
+- **pnpm** — install with `npm install -g pnpm`
+- **PostgreSQL** database (local or hosted)
+- OpenAI-compatible API key 
+---
 
-- **SSE streaming for AI analysis**: The `/api/analyses/:id/stream` endpoint streams AI-generated content section-by-section via Server-Sent Events, enabling a live "watching the AI think" UX. Orval-generated hooks can't handle SSE, so the frontend uses raw `fetch` + `ReadableStream`.
-- **GitHub API without auth**: Repository content is fetched via the public GitHub REST API. Rate limits apply (60 req/hr unauthenticated). Adding a `GITHUB_TOKEN` env var would remove limits.
-- **Async analysis model**: Analysis is created as `pending`, then a separate `/stream` POST triggers the AI. This decouples creation from processing and allows the frontend to start polling immediately.
-- **Layered explanation levels**: The system prompt adapts based on the user's chosen level (beginner/intermediate/advanced), using the same repo context but different instruction framing.
+## Getting Started
 
-## Product
+### 1. Clone the repository
 
-- Users paste a GitHub URL and select an explanation level
-- The AI fetches the repo structure, README, and key source files via the GitHub API
-- Five sections are generated and streamed live: Summary, Architecture, Key Functions, Data Flow, Execution Walkthrough
-- All past analyses are saved and browsable in the History page
+```bash
+git clone https://github.com/pranavsan/Explainity.git
+cd Explainity
+```
+
+### 2. Install dependencies
+
+```bash
+pnpm install
+```
+
+### 3. Set up the database
+
+Push the Drizzle schema to your PostgreSQL database:
+
+```bash
+pnpm --filter @workspace/db run push
+```
+
+### 4. Run the development servers
+
+You need **two terminals** — one for the API server, one for the frontend:
+
+**Terminal 1 — API server** (runs on port 8080):
+```bash
+pnpm --filter @workspace/api-server run dev
+```
+
+**Terminal 2 — Frontend** (runs on port 24608):
+```bash
+pnpm --filter @workspace/codeexplainer run dev
+```
+
+Then open **http://localhost:24608** in your browser.
+
+---
+
+## Usage
+
+1. Navigate to `http://localhost:24608`
+2. Paste any public GitHub repository URL (e.g. `https://github.com/facebook/react`)
+3. Select an explanation level: **Beginner**, **Intermediate**, or **Advanced**
+4. Click Analyse — the AI streams five sections live as it works
+5. Revisit any past analysis from the **History** page
+
+---
+
+## All Available Commands
+
+| Command | What it does |
+|---|---|
+| `pnpm --filter @workspace/api-server run dev` | Start the API server on port 8080 |
+| `pnpm --filter @workspace/codeexplainer run dev` | Start the frontend on port 24608 |
+| `pnpm run typecheck` | Full TypeScript typecheck across all packages |
+| `pnpm run build` | Typecheck + build all packages |
+| `pnpm --filter @workspace/api-spec run codegen` | Regenerate API hooks and Zod schemas from the OpenAPI spec |
+| `pnpm --filter @workspace/db run push` | Push DB schema changes (dev only) |
+
+---
+
+## Project Structure
+
+```
+Explainity/
+├── artifacts/
+│   ├── api-server/
+│   │   └── src/routes/analyses.ts   # All analysis routes + AI streaming logic
+│   └── codeexplainer/
+│       └── src/
+│           ├── pages/               # Home, AnalysisDetail, History pages
+│           └── components/          # Layout, ThemeToggle, MarkdownRenderer
+├── lib/
+│   ├── api-spec/
+│   │   └── openapi.yaml             # OpenAPI spec — source of truth for API contracts
+│   ├── db/
+│   │   └── src/schema/analyses.ts   # Drizzle schema for the analyses table
+│   └── integrations-openai-ai-server/  # OpenAI client (server-side)
+├── scripts/
+├── package.json
+├── pnpm-workspace.yaml
+└── tsconfig.json
+```
